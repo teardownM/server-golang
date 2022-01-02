@@ -5,7 +5,6 @@ local enums = require("gamemode.enums")
 
 local printTable = require("utils.printTable")
 
-
 local M = {}
 
 function M.join_attempt(context, dispatcher, tick, state, presence, metadata)
@@ -16,7 +15,7 @@ end
 function M.join(context, dispatcher, tick, state, presences)
     
     for _, presence in ipairs(presences) do
-        print("[GAMEMODE] - Player has joined the game with id: ", presence.user_id)
+        print("[TEARDOWN SMP] - Player has joined the game with id: ", presence.user_id)
 
         presence.x = 0
         presence.z = 0
