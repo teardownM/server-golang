@@ -23,8 +23,9 @@ type MatchState struct {
 type Match struct{}
 
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
-	state := &MatchState{
-		debug: true, // hardcode debug for now
+	state := MatchState{
+		debug:     true, // hardcode debug for now
+		presences: make(map[UserId]TeardownPlayer),
 	}
 
 	if state.debug {

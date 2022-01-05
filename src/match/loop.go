@@ -14,8 +14,7 @@ const (
 	PLAYER_SHOOTS int64 = 3
 )
 
-func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state MatchState, messages []runtime.MatchData) interface{} {
-
+func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, messages []runtime.MatchData) interface{} {
 	for _, message := range messages {
 		switch message.GetOpCode() {
 		case PLAYER_POS:

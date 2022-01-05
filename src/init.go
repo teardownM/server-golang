@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	//"teardownNakamaServer/match"
+	"teardownNakamaServer/match"
 	"teardownNakamaServer/rpc"
 
 	"github.com/heroiclabs/nakama-common/api"
@@ -13,10 +13,8 @@ import (
 
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
 
-	if err := initializer.RegisterRpc("go_echo_sample", rpc.Echo); err != nil {
-		return err
-	}
-	if err := initializer.RegisterRpc("rpc_create_match", rpc.CreateMatch); err != nil {
+	// TODO: Remove me once we build server browser
+	if err := initializer.RegisterRpc("rpc_get_match_id", rpc.CreateMatch); err != nil {
 		return err
 	}
 
@@ -25,6 +23,14 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 	// }); err != nil {
 	// 	return err
 	// }
+
+	// Register as match handler, this call should be in InitModule.
+	if err := initializer.RegisterMatch("pingpong", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
+		return &match.Match{}, nil
+	}); err != nil {
+		logger.Error("Unable to register: %v", err)
+		return err
+	}
 
 	if err := initializer.RegisterEvent(func(ctx context.Context, logger runtime.Logger, evt *api.Event) {
 		logger.Info("Received event: %+v", evt)
