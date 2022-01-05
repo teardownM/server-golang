@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"teardownNakamaServer/match"
+	//"teardownNakamaServer/match"
 	"teardownNakamaServer/rpc"
 
 	"github.com/heroiclabs/nakama-common/api"
@@ -20,11 +20,11 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
-	if err := initializer.RegisterMatch("match", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
-		return &match.Match{}, nil
-	}); err != nil {
-		return err
-	}
+	// if err := initializer.RegisterMatch("match", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
+	// 	return &match.Match{}, nil
+	// }); err != nil {
+	// 	return err
+	// }
 
 	if err := initializer.RegisterEvent(func(ctx context.Context, logger runtime.Logger, evt *api.Event) {
 		logger.Info("Received event: %+v", evt)
