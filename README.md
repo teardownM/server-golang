@@ -6,7 +6,7 @@
 2. To build the Go files:
 `docker run --rm -w "/builder" -v "${PWD}:/builder" heroiclabs/nakama-pluginbuilder:3.10.0 build -buildmode=plugin -trimpath -o ./modules/teardownNK.so`
 
-3. Move the modules folder in parent directory (outside of src) (haven't figured out how to automatically do this)
+3. Move the modules folder in the src directory to the parent directory (outside of src) (haven't figured out how to automatically do this)
 
 4. Run `docker compose up`
 
