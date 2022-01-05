@@ -15,5 +15,5 @@ func (m *Match) MatchLeave(ctx context.Context, logger runtime.Logger, db *sql.D
 		delete(mState.presences, UserId(presence.GetUserId()))
 	}
 
-	return state
+	return mState
 }

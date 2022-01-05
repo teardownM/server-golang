@@ -8,24 +8,26 @@ import (
 	"github.com/heroiclabs/nakama-common/runtime"
 )
 
+type UserId string
+
 type TeardownPlayer struct {
-	position vector3.Vector3
-	health   float32
+	Position vector3.Vector3 `json:"position"`
+	Health   float32         `json:"health"`
 }
 
-type UserId string
+type Presences map[UserId]*TeardownPlayer
 
 type MatchState struct {
 	debug     bool
-	presences map[UserId]TeardownPlayer
+	presences Presences
 }
 
 type Match struct{}
 
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
-	state := MatchState{
+	state := &MatchState{
 		debug:     true, // hardcode debug for now
-		presences: make(map[UserId]TeardownPlayer),
+		presences: make(Presences),
 	}
 
 	if state.debug {
@@ -33,7 +35,7 @@ func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB
 	}
 
 	tickRate := 28
-	label := "sandbox"
+	label := "dev"
 
 	return state, tickRate, label
 }

@@ -3,6 +3,7 @@ package match
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 
 	"github.com/heroiclabs/nakama-common/runtime"
@@ -14,26 +15,33 @@ const (
 	PLAYER_SHOOTS int64 = 3
 )
 
+type IncomingData struct {
+	UserId   string  `json:"user_id"`
+	CurrentX float64 `json:"currentX"`
+	CurrentY float64 `json:"currentY"`
+	CurrentZ float64 `json:"currentZ"`
+}
+
 func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, messages []runtime.MatchData) interface{} {
+	mState, _ := state.(*MatchState)
+
 	for _, message := range messages {
 		switch message.GetOpCode() {
 		case PLAYER_POS:
-			// A player has moved
-			fmt.Println("Player is moving")
+			m_clientPresenceUserId := UserId(message.GetUserId())
 
-			fmt.Println(string(message.GetData())) // Look at string builder for performance?
+			if _, ok := mState.presences[m_clientPresenceUserId]; ok {
+				s := message.GetData()
+				data := IncomingData{}
+				json.Unmarshal([]byte(s), &data)
 
-			// local client_data = nk.json_decode(message.data)
-			// local client_presence = state.presences[client_data.user_id] -- find the user in presences
+				mState.presences[m_clientPresenceUserId].Position.Set(data.CurrentX, data.CurrentY, data.CurrentZ)
+			}
 
-			// if client_presence then
-			//     client_presence.x = client_data.currentX
-			//     client_presence.z = client_data.currentZ
-			//     client_presence.y = client_data.currentY
-			// end
+			data, _ := json.Marshal(&mState.presences)
 
 			// Sending nil for presenses means will send it to all players connected to the match
-			dispatcher.BroadcastMessage(PLAYER_POS, message.GetData(), nil, nil, true)
+			dispatcher.BroadcastMessage(PLAYER_POS, data, nil, nil, true)
 		case PLAYER_SPAWN:
 			fmt.Println("Linux.")
 		case PLAYER_SHOOTS:
@@ -43,5 +51,5 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 		}
 	}
 
-	return state
+	return mState
 }

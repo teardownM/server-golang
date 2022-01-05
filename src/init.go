@@ -13,8 +13,7 @@ import (
 
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
 
-	// TODO: Remove me once we build server browser
-	if err := initializer.RegisterRpc("rpc_get_match_id", rpc.CreateMatch); err != nil {
+	if err := initializer.RegisterRpc("rpc_get_matches", rpc.GetMatches); err != nil {
 		return err
 	}
 
@@ -25,7 +24,7 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 	// }
 
 	// Register as match handler, this call should be in InitModule.
-	if err := initializer.RegisterMatch("pingpong", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
+	if err := initializer.RegisterMatch("sandbox", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
 		return &match.Match{}, nil
 	}); err != nil {
 		logger.Error("Unable to register: %v", err)
@@ -37,6 +36,8 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 	}); err != nil {
 		return err
 	}
+
+	nk.MatchCreate(ctx, "sandbox", nil)
 
 	return nil
 }
