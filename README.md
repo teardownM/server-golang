@@ -3,10 +3,10 @@
 1. Open `docker-compose.yml`, change line 32 to match your current working directory:
 `/c/Users/<username>/projects/TeardownNakamaServer:/nakama/data`
 
-2. Launch Nakama with Docker: `docker compose up -d`
+2. Launch Nakama with Docker: `docker-compose up -d`
 
 3. Find your local Nakama Docker Container ID:
-`docker compose ls`
+`docker-compose ls`
 
 4. Find `heroiclabs/nakama:3.10.0` and copy it's ID
 
