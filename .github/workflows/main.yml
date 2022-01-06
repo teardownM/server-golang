@@ -11,6 +11,6 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SLEDGEMP_PUBLIC_KEY_DEV }}
+          key: ${{ secrets.SLEDGEMP_PRIVATE_KEY_DEV }}
           port: ${{ secrets.PORT }}
           script: build_latest
