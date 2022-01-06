@@ -13,4 +13,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SLEDGEMP_PRIVATE_KEY_DEV }}
           port: ${{ secrets.PORT }}
-          script: build_latest.sh
+          script: ./build_latest.sh
