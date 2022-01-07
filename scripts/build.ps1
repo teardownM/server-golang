@@ -8,7 +8,6 @@ Write-Output "Docker ID: $dockerID"
 
 if (-not(Test-Path -Path "modules/")) {
     New-Item -ItemType Directory -Force -Path "modules/"
-    exit 1
 }
 
 Set-Location .\src
