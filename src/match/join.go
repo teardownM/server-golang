@@ -20,7 +20,12 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 	for _, presence := range presences {
 		logger.Info("match join username %v user_id %v session_id %v node %v", presence.GetUsername(), presence.GetUserId(), presence.GetSessionId(), presence.GetNodeId())
 
+		// This line means the player will always spawn at 0, 0, 0
+		// In the future, add support for players previous location (database required) or map spawn points
 		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(0, 0, 0), 100}
+		data := presence.GetUserId() + ",0," + "0," + "0"
+
+		dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(data), nil, nil, true)
 	}
 
 	return mState
