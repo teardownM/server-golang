@@ -14,7 +14,7 @@ if (-not(Test-Path -Path "modules/")) {
 Set-Location .\src
 docker run --rm -w "/builder" -v "${PWD}:/builder" heroiclabs/nakama-pluginbuilder:3.10.0 build -buildmode=plugin -trimpath -o ./modules/teardownNK.so
 
-Move-Item -Path "./modules/*" -Destination "../modules/*" -Force
+Move-Item -Path "./modules/*" -Destination "../modules/" -Force
 Remove-Item -Path "./modules/" -Recurse -Force
 
 Set-Location ..
