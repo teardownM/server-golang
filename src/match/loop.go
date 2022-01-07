@@ -40,14 +40,21 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				mState.presences[m_clientPresenceUserId].Position.Set(data.CurrentX, data.CurrentY, data.CurrentZ)
 			}
 
-			data, _ := json.Marshal(&mState.presences)
+			dataToSend, _ := json.Marshal(&mState.presences)
 
 			// Sending nil for presenses means will send it to all players connected to the match
-			dispatcher.BroadcastMessage(PLAYER_MOVE, data, nil, nil, true)
+			dispatcher.BroadcastMessage(PLAYER_MOVE, dataToSend, nil, nil, true)
 		case PLAYER_SPAWN:
 			fmt.Println("Linux.")
 		case PLAYER_SHOOTS:
-			fmt.Println("Linux.")
+			m_clientPresenceUserId := UserId(message.GetUserId())
+
+			if _, ok := mState.presences[m_clientPresenceUserId]; ok {
+				tool := string(message.GetData())
+				dataToSend := message.GetUserId() + "," + tool
+
+				dispatcher.BroadcastMessage(PLAYER_SHOOTS, []byte(dataToSend), nil, nil, true)
+			}
 		default:
 			fmt.Printf("Invalid OP Code!")
 		}
