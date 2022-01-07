@@ -21,4 +21,4 @@ rm -r ./modules/
 cd ..
 
 docker restart $1
-echo "Successfully built and restart the Nakama server to detect changes"
+echo "Successfully built and restarted the Nakama server"
