@@ -45,7 +45,17 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 			// Sending nil for presenses means will send it to all players connected to the match
 			dispatcher.BroadcastMessage(PLAYER_MOVE, data, nil, nil, true)
 		case PLAYER_SPAWN:
-			fmt.Println("Linux.")
+			m_clientPresenceUserId := UserId(message.GetUserId())
+			
+			if _, ok := mState.presences[m_clientPresenceUserId]; ok {
+				s := message.GetData()
+				data := IncomingData{}
+				json.Unmarshal([]byte(s), &data)
+			}
+
+			data, _ := json.Marshal(&mState.presences)
+
+			dispatcher.BroadcastMessage(PLAYER_SPAWN, data, nil, nil, true)
 		case PLAYER_SHOOTS:
 			fmt.Println("Linux.")
 		default:
