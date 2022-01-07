@@ -1,0 +1,1 @@
+powershell.exe -File .\scripts\build_and_launch.ps1
