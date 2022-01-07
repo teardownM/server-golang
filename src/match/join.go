@@ -25,7 +25,7 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(0, 0, 0), 100}
 		data := presence.GetUserId() + ",0," + "0," + "0"
 
-		dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(data), nil, nil, true)
+		dispatcher.BroadcastMessage(PLAYER_JOINS, []byte(data), nil, nil, true)
 	}
 
 	return mState

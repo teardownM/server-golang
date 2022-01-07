@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	PLAYER_POS    int64 = 1
+	PLAYER_MOVE   int64 = 1
 	PLAYER_SPAWN  int64 = 2
 	PLAYER_SHOOTS int64 = 3
+	PLAYER_JOINS  int64 = 4
+	PLAYER_GRABS  int64 = 5
 )
 
 type IncomingData struct {
@@ -27,7 +29,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 
 	for _, message := range messages {
 		switch message.GetOpCode() {
-		case PLAYER_POS:
+		case PLAYER_MOVE:
 			m_clientPresenceUserId := UserId(message.GetUserId())
 
 			if _, ok := mState.presences[m_clientPresenceUserId]; ok {
@@ -41,7 +43,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 			data, _ := json.Marshal(&mState.presences)
 
 			// Sending nil for presenses means will send it to all players connected to the match
-			dispatcher.BroadcastMessage(PLAYER_POS, data, nil, nil, true)
+			dispatcher.BroadcastMessage(PLAYER_MOVE, data, nil, nil, true)
 		case PLAYER_SPAWN:
 			fmt.Println("Linux.")
 		case PLAYER_SHOOTS:
