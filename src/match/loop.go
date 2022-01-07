@@ -13,7 +13,6 @@ const (
 	PLAYER_MOVE   int64 = 1
 	PLAYER_SPAWN  int64 = 2
 	PLAYER_SHOOTS int64 = 3
-	PLAYER_JOINS  int64 = 4
 	PLAYER_GRABS  int64 = 5
 )
 
