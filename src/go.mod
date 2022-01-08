@@ -1,4 +1,4 @@
-module teardownM
+module github.com/alexandargyurov/teardownM
 
 go 1.17
 

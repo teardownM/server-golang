@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"teardownM/match"
-	"teardownM/rpc"
+	"github.com/alexandargyurov/teardownM/match"
+	"github.com/alexandargyurov/teardownM/rpc"
 
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama-common/runtime"
