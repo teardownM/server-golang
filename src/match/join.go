@@ -23,9 +23,6 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 		// This line means the player will always spawn at 2, -50, -22
 		// In the future, add support for players previous location (database required) or map spawn points
 		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(2, -50, -22), 100}
-		data := presence.GetUserId() + ",2" + ",-50" + ",-22"
-
-		dispatcher.BroadcastMessage(PLAYER_JOINS, []byte(data), nil, nil, true)
 	}
 
 	return mState
