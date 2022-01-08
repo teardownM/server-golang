@@ -1,4 +1,4 @@
-module teardownNakamaServer
+module teardownM
 
 go 1.17
 
