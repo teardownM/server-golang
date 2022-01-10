@@ -9,7 +9,6 @@ import (
 )
 
 func GetMatches(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-
 	matches, err := nk.MatchList(ctx, 10, true, "dev", nil, nil, "")
 	if err != nil {
 		logger.WithField("err", err).Error("Match list error.")

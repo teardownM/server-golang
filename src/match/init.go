@@ -10,9 +10,14 @@ import (
 
 type UserId string
 
+type Quaternion struct {
+	X, Y, Z, W float64
+}
+
 type TeardownPlayer struct {
-	Position vector3.Vector3 `json:"position"`
-	Health   float32         `json:"health"`
+	Position vector3.Vector3
+	Rotation Quaternion // Quaternion
+	Health   float32
 }
 
 type Presences map[UserId]*TeardownPlayer

@@ -22,7 +22,8 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 
 		// This line means the player will always spawn at 2, -50, -22
 		// In the future, add support for players previous location (database required) or map spawn points
-		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(2, -50, -22), 100}
+		quaternion := Quaternion{0, 0, 0, 0}
+		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(2, -50, -22), quaternion, 100}
 	}
 
 	return mState

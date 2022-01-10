@@ -36,11 +36,20 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				data := strings.Split(string(message.GetData()), ",")
 
 				x, _ := strconv.ParseFloat(data[0], 64)
-				y, _ := strconv.ParseFloat(data[0], 64)
-				z, _ := strconv.ParseFloat(data[0], 64)
-				mState.presences[m_clientPresenceUserId].Position.Set(x, y, z)
+				y, _ := strconv.ParseFloat(data[1], 64)
+				z, _ := strconv.ParseFloat(data[2], 64)
+				rx, _ := strconv.ParseFloat(data[3], 64)
+				ry, _ := strconv.ParseFloat(data[4], 64)
+				rz, _ := strconv.ParseFloat(data[5], 64)
+				rw, _ := strconv.ParseFloat(data[6], 64)
 
-				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2]
+				mState.presences[m_clientPresenceUserId].Position.Set(x, y, z)
+				mState.presences[m_clientPresenceUserId].Rotation.X = rx
+				mState.presences[m_clientPresenceUserId].Rotation.Y = ry
+				mState.presences[m_clientPresenceUserId].Rotation.Z = rz
+				mState.presences[m_clientPresenceUserId].Rotation.W = rw
+
+				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6]
 
 				// Sending nil for presenses means will send it to all players connected to the match
 				dispatcher.BroadcastMessage(PLAYER_MOVE, []byte(dataToSend), nil, nil, true)
