@@ -15,7 +15,7 @@ rm -r ./modules/
 
 cd ..
 
-DOCKERID = $(docker ps -aqf "name=^nakama-server_nakama_1$")
+DOCKERID=$(docker ps -aqf "name=^teardownnakamaserver_nakama_1$")
 docker restart $DOCKERID
 
 echo "Successfully built and restarted the Nakama server"
