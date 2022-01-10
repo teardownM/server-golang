@@ -3,8 +3,9 @@ package match
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/heroiclabs/nakama-common/runtime"
 )
@@ -32,17 +33,19 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 			m_clientPresenceUserId := UserId(message.GetUserId())
 
 			if _, ok := mState.presences[m_clientPresenceUserId]; ok {
-				s := message.GetData()
-				data := IncomingData{}
-				json.Unmarshal([]byte(s), &data)
+				data := strings.Split(string(message.GetData()), ",")
 
-				mState.presences[m_clientPresenceUserId].Position.Set(data.CurrentX, data.CurrentY, data.CurrentZ)
+				x, _ := strconv.ParseFloat(data[0], 64)
+				y, _ := strconv.ParseFloat(data[0], 64)
+				z, _ := strconv.ParseFloat(data[0], 64)
+				mState.presences[m_clientPresenceUserId].Position.Set(x, y, z)
+
+				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2]
+
+				// Sending nil for presenses means will send it to all players connected to the match
+				dispatcher.BroadcastMessage(PLAYER_MOVE, []byte(dataToSend), nil, nil, true)
 			}
 
-			dataToSend, _ := json.Marshal(&mState.presences)
-
-			// Sending nil for presenses means will send it to all players connected to the match
-			dispatcher.BroadcastMessage(PLAYER_MOVE, dataToSend, nil, nil, true)
 		case PLAYER_SPAWN:
 			dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(message.GetUserId()), nil, nil, true)
 		case PLAYER_SHOOTS:
