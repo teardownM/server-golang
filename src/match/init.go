@@ -12,6 +12,7 @@ type UserId string
 
 type TeardownPlayer struct {
 	Position vector3.Vector3 `json:"position"`
+	Rotation vector3.Vector3 `json:"rotation"`
 	Health   float32         `json:"health"`
 }
 

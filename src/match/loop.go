@@ -3,7 +3,6 @@ package match
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -38,9 +37,15 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				x, _ := strconv.ParseFloat(data[0], 64)
 				y, _ := strconv.ParseFloat(data[0], 64)
 				z, _ := strconv.ParseFloat(data[0], 64)
+				rx, _ := strconv.ParseFloat(data[0], 64)
+				ry, _ := strconv.ParseFloat(data[0], 64)
+				rz, _ := strconv.ParseFloat(data[0], 64)
 				mState.presences[m_clientPresenceUserId].Position.Set(x, y, z)
+				mState.presences[m_clientPresenceUserId].Rotation.Set(rx, ry, rz)
 
-				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2]
+				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5]
+				
+				logger.Info("%s", dataToSend);
 
 				// Sending nil for presenses means will send it to all players connected to the match
 				dispatcher.BroadcastMessage(PLAYER_MOVE, []byte(dataToSend), nil, nil, true)
@@ -57,8 +62,6 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 
 				dispatcher.BroadcastMessage(PLAYER_SHOOTS, []byte(dataToSend), nil, nil, true)
 			}
-		default:
-			fmt.Printf("Invalid OP Code!")
 		}
 	}
 
