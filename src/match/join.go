@@ -3,6 +3,8 @@ package match
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"math/rand"
 
 	"github.com/deeean/go-vector/vector3"
 	"github.com/heroiclabs/nakama-common/runtime"
@@ -20,10 +22,18 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 	for _, presence := range presences {
 		logger.Info("match join username %v user_id %v session_id %v node %v", presence.GetUsername(), presence.GetUserId(), presence.GetSessionId(), presence.GetNodeId())
 
-		// This line means the player will always spawn at 2, -50, -22
-		// In the future, add support for players previous location (database required) or map spawn points
 		quaternion := Quaternion{0, 0, 0, 0}
-		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(2, -50, -22), quaternion, 100}
+
+		randomIndex := rand.Intn(len(mState.spawnPoints))
+		playerSpawnPoint := mState.spawnPoints[randomIndex]
+
+		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), quaternion, 100}
+
+		dataToSend := fmt.Sprintf("%f", playerSpawnPoint.X) + "," + fmt.Sprintf("%f", playerSpawnPoint.Y) + "," + fmt.Sprintf("%f", playerSpawnPoint.Z)
+		clientRecipients := make([]runtime.Presence, 1)
+		clientRecipients[0] = presence
+
+		dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(dataToSend), clientRecipients, nil, true)
 	}
 
 	return mState
