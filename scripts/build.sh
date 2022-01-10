@@ -1,9 +1,4 @@
 #!/bin/sh
-if [ $# -eq 0 ]
-  then
-    echo "Please specify the docker id to restart, find out with 'docker container ls' and copy the id of heroiclabs/nakama"
-    exit 1
-fi
 
 DIR="modules/"
 if [ ! -d "$DIR" ]; then
@@ -20,5 +15,7 @@ rm -r ./modules/
 
 cd ..
 
-docker restart $1
+dockerId = docker ps -aqf "name=^nakama-server_nakama_1$"
+docker restart dockerId
+
 echo "Successfully built and restarted the Nakama server"
