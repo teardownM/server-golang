@@ -1,0 +1,6 @@
+title: Dev server 1
+gamemode: sandbox
+version: 0.0.0
+map:
+  name: villa_gordon
+  spawn_points: [[50, 10, 10]]

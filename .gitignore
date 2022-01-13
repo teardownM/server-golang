@@ -1,3 +1,4 @@
 .cookie
-/modules
+.env
+/modules/teardownNK.so
 /src/modules
