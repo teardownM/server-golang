@@ -2,3 +2,4 @@
 .env
 /modules/teardownNK.so
 /src/modules
+/src/vendor

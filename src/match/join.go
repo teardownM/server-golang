@@ -20,6 +20,8 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 	mState, _ := state.(*MatchState)
 
 	for _, presence := range presences {
+		userId := UserId(presence.GetUserId())
+
 		logger.Info("match join username %v user_id %v session_id %v node %v", presence.GetUsername(), presence.GetUserId(), presence.GetSessionId(), presence.GetNodeId())
 
 		quaternion := Quaternion{0, 0, 0, 0}
@@ -27,13 +29,15 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 		randomIndex := rand.Intn(len(mState.spawnPoints))
 		playerSpawnPoint := mState.spawnPoints[randomIndex]
 
-		mState.presences[UserId(presence.GetUserId())] = &TeardownPlayer{*vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), quaternion, 100}
+		mState.presences[userId] = &TeardownPlayer{*vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), quaternion, 100}
 
 		dataToSend := fmt.Sprintf("%f", playerSpawnPoint.X) + "," + fmt.Sprintf("%f", playerSpawnPoint.Y) + "," + fmt.Sprintf("%f", playerSpawnPoint.Z)
 		clientRecipients := make([]runtime.Presence, 1)
 		clientRecipients[0] = presence
 
 		dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(dataToSend), clientRecipients, nil, true)
+
+		LuaGamemodeOnJoin(L, userId)
 	}
 
 	return mState
