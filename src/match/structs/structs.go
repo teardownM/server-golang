@@ -16,13 +16,6 @@ type TeardownPlayer struct {
 
 type Presences map[UserID]*TeardownPlayer
 
-type MatchState struct {
-	Debug       bool
-	Presences   Presences
-	Map         string
-	SpawnPoints []vector3.Vector3
-}
-
 type ServerConfig struct {
 	Title    string `json:"name"`
 	Gamemode string `json:"gamemode"`
@@ -31,4 +24,18 @@ type ServerConfig struct {
 		Name        string  `yaml:"name"`
 		SpawnPoints [][]int `yaml:"spawn_points"`
 	}
+}
+
+type MatchState struct {
+	Debug       bool
+	Presences   Presences
+	Map         string
+	SpawnPoints []vector3.Vector3
+}
+
+var MState = &MatchState{
+	Debug:       true,
+	Presences:   make(Presences),
+	Map:         "villa_gordon",
+	SpawnPoints: nil,
 }

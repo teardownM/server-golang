@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nedpals/supabase-go"
 
+	"github.com/alexandargyurov/teardownM/match/api/player"
 	"github.com/alexandargyurov/teardownM/match/structs"
 
 	lua "github.com/yuin/gopher-lua"
@@ -62,13 +63,6 @@ func registerServer(serverConfig structs.ServerConfig) {
 
 var L = lua.NewState()
 
-var mState = &structs.MatchState{
-	Debug:       true,
-	Presences:   make(structs.Presences),
-	Map:         "villa_gordon",
-	SpawnPoints: nil,
-}
-
 type Match struct{}
 
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
@@ -76,22 +70,22 @@ func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB
 	registerServer(serverConfig)
 
 	L.SetContext(ctx)
-	L.PreloadModule("player", Loader)
+	L.PreloadModule("player", player.ModuleLoader)
 
 	spawnPoints := make([]vector3.Vector3, 3)
 	spawnPoints[0] = *vector3.New(135, 9, -72)
 	spawnPoints[1] = *vector3.New(135, 8, -66)
 	spawnPoints[2] = *vector3.New(125, 8, -66)
-	mState.SpawnPoints = spawnPoints
+	structs.MState.SpawnPoints = spawnPoints
 
 	LuaGamemodeInit(L, serverConfig)
 
-	if mState.Debug {
-		logger.Info("match init, starting with debug: %v", mState.Debug)
+	if structs.MState.Debug {
+		logger.Info("match init, starting with debug: %v", structs.MState.Debug)
 	}
 
 	tickRate := 28
 	label := "dev"
 
-	return mState, tickRate, label
+	return structs.MState, tickRate, label
 }

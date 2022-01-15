@@ -32,7 +32,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 		case PLAYER_MOVE:
 			m_clientPresenceUserId := structs.UserID(message.GetUserId())
 
-			if _, ok := mState.Presences[m_clientPresenceUserId]; ok {
+			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				data := strings.Split(string(message.GetData()), ",")
 
 				x, _ := strconv.ParseFloat(data[0], 64)
@@ -43,11 +43,11 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				rz, _ := strconv.ParseFloat(data[5], 64)
 				rw, _ := strconv.ParseFloat(data[6], 64)
 
-				mState.Presences[m_clientPresenceUserId].Position.Set(x, y, z)
-				mState.Presences[m_clientPresenceUserId].Rotation.X = rx
-				mState.Presences[m_clientPresenceUserId].Rotation.Y = ry
-				mState.Presences[m_clientPresenceUserId].Rotation.Z = rz
-				mState.Presences[m_clientPresenceUserId].Rotation.W = rw
+				structs.MState.Presences[m_clientPresenceUserId].Position.Set(x, y, z)
+				structs.MState.Presences[m_clientPresenceUserId].Rotation.X = rx
+				structs.MState.Presences[m_clientPresenceUserId].Rotation.Y = ry
+				structs.MState.Presences[m_clientPresenceUserId].Rotation.Z = rz
+				structs.MState.Presences[m_clientPresenceUserId].Rotation.W = rw
 
 				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6]
 
@@ -60,7 +60,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 		case PLAYER_SHOOTS:
 			m_clientPresenceUserId := structs.UserID(message.GetUserId())
 
-			if _, ok := mState.Presences[m_clientPresenceUserId]; ok {
+			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				tool := string(message.GetData())
 				dataToSend := message.GetUserId() + "," + tool
 
@@ -71,5 +71,5 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 		}
 	}
 
-	return mState
+	return structs.MState
 }

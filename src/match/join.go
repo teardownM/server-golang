@@ -27,9 +27,9 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 
 		quaternion := structs.Quaternion{X: 0, Y: 0, Z: 0, W: 0}
 
-		playerSpawnPoint := mState.SpawnPoints[rand.Intn(len(mState.SpawnPoints))]
+		playerSpawnPoint := structs.MState.SpawnPoints[rand.Intn(len(structs.MState.SpawnPoints))]
 
-		mState.Presences[userId] = &structs.TeardownPlayer{Position: *vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), Rotation: quaternion, Health: 100}
+		structs.MState.Presences[userId] = &structs.TeardownPlayer{Position: *vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), Rotation: quaternion, Health: 100}
 
 		dataToSend := fmt.Sprintf("%f", playerSpawnPoint.X) + "," + fmt.Sprintf("%f", playerSpawnPoint.Y) + "," + fmt.Sprintf("%f", playerSpawnPoint.Z)
 		clientRecipients := make([]runtime.Presence, 1)
@@ -40,5 +40,5 @@ func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB
 		LuaGamemodeOnJoin(L, userId)
 	}
 
-	return mState
+	return structs.MState
 }
