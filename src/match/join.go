@@ -8,6 +8,8 @@ import (
 
 	"github.com/deeean/go-vector/vector3"
 	"github.com/heroiclabs/nakama-common/runtime"
+
+	"github.com/alexandargyurov/teardownM/match/structs"
 )
 
 func (m *Match) MatchJoinAttempt(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, presence runtime.Presence, metadata map[string]string) (interface{}, bool, string) {
@@ -17,19 +19,17 @@ func (m *Match) MatchJoinAttempt(ctx context.Context, logger runtime.Logger, db 
 }
 
 func (m *Match) MatchJoin(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, presences []runtime.Presence) interface{} {
-	mState, _ := state.(*MatchState)
 
 	for _, presence := range presences {
-		userId := UserId(presence.GetUserId())
+		userId := structs.UserID(presence.GetUserId())
 
 		logger.Info("match join username %v user_id %v session_id %v node %v", presence.GetUsername(), presence.GetUserId(), presence.GetSessionId(), presence.GetNodeId())
 
-		quaternion := Quaternion{0, 0, 0, 0}
+		quaternion := structs.Quaternion{X: 0, Y: 0, Z: 0, W: 0}
 
-		randomIndex := rand.Intn(len(mState.spawnPoints))
-		playerSpawnPoint := mState.spawnPoints[randomIndex]
+		playerSpawnPoint := mState.SpawnPoints[rand.Intn(len(mState.SpawnPoints))]
 
-		mState.presences[userId] = &TeardownPlayer{*vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), quaternion, 100}
+		mState.Presences[userId] = &structs.TeardownPlayer{Position: *vector3.New(playerSpawnPoint.X, playerSpawnPoint.Y, playerSpawnPoint.Z), Rotation: quaternion, Health: 100}
 
 		dataToSend := fmt.Sprintf("%f", playerSpawnPoint.X) + "," + fmt.Sprintf("%f", playerSpawnPoint.Y) + "," + fmt.Sprintf("%f", playerSpawnPoint.Z)
 		clientRecipients := make([]runtime.Presence, 1)

@@ -1,6 +1,8 @@
 package match
 
 import (
+	"github.com/alexandargyurov/teardownM/match/structs"
+
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -25,10 +27,10 @@ func Test(L *lua.LState) int {
 	return 1
 }
 
-// User ID
+// Given a user_id, returns the health of that player
 func GetHealth(L *lua.LState) int {
 	userId := L.ToString(1)
-	teardownPlayer := mState.presences[UserId(userId)]
+	teardownPlayer := mState.Presences[structs.UserID(userId)]
 
 	if teardownPlayer != nil {
 		L.Push(lua.LNumber(teardownPlayer.Health))
