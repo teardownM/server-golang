@@ -20,9 +20,10 @@ type ServerConfig struct {
 	Title    string `json:"name"`
 	Gamemode string `json:"gamemode"`
 	Version  string `json:"version"`
+	Debug    bool   `yaml:"debug"`
 	Map      struct {
-		Name        string  `yaml:"name"`
-		SpawnPoints [][]int `yaml:"spawn_points"`
+		Name        string      `yaml:"name"`
+		SpawnPoints [][]float64 `yaml:"spawn_points"`
 	}
 }
 
@@ -36,6 +37,6 @@ type MatchState struct {
 var MState = &MatchState{
 	Debug:       true,
 	Presences:   make(Presences),
-	Map:         "villa_gordon",
+	Map:         "",
 	SpawnPoints: nil,
 }

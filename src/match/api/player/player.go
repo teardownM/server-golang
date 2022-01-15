@@ -7,6 +7,7 @@ import (
 )
 
 func ModuleLoader(L *lua.LState) int {
+	// register functions to the table
 	module := L.SetFuncs(L.NewTable(), exports)
 
 	// register other stuff

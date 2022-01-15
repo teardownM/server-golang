@@ -22,7 +22,7 @@ import (
 /**
 * Reads the config file in ./modules/config.yml
 **/
-func readYMLConfig() structs.ServerConfig {
+func ReadYMLConfig() structs.ServerConfig {
 	content, fileErr := ioutil.ReadFile("./data/gamemodes/config.yml")
 	if fileErr != nil {
 		log.Fatal("Could not read config.yml")
@@ -66,16 +66,20 @@ var L = lua.NewState()
 type Match struct{}
 
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
-	serverConfig := readYMLConfig()
+	serverConfig := ReadYMLConfig()
 	registerServer(serverConfig)
 
 	L.SetContext(ctx)
 	L.PreloadModule("player", player.ModuleLoader)
 
+	structs.MState.Map = serverConfig.Map.Name
+	structs.MState.Debug = serverConfig.Debug
+
 	spawnPoints := make([]vector3.Vector3, 3)
-	spawnPoints[0] = *vector3.New(135, 9, -72)
-	spawnPoints[1] = *vector3.New(135, 8, -66)
-	spawnPoints[2] = *vector3.New(125, 8, -66)
+	for index, spawnPoint := range serverConfig.Map.SpawnPoints {
+		spawnPoints[index] = *vector3.New(spawnPoint[0], spawnPoint[1], spawnPoint[2])
+	}
+
 	structs.MState.SpawnPoints = spawnPoints
 
 	LuaGamemodeInit(L, serverConfig)

@@ -12,12 +12,14 @@ import (
 )
 
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
+	serverConfig := match.ReadYMLConfig()
+
 	if err := initializer.RegisterRpc("rpc_get_matches", rpc.GetMatches); err != nil {
 		return err
 	}
 
 	// Register as match handler, this call should be in InitModule.
-	if err := initializer.RegisterMatch("sandbox", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
+	if err := initializer.RegisterMatch(serverConfig.Gamemode, func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
 		return &match.Match{}, nil
 	}); err != nil {
 		logger.Error("Unable to register: %v", err)
@@ -30,7 +32,7 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
-	nk.MatchCreate(ctx, "sandbox", nil)
+	nk.MatchCreate(ctx, serverConfig.Gamemode, nil)
 
 	return nil
 }
