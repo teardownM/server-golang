@@ -29,7 +29,7 @@ services:
       - cockroachdb
       - prometheus
     volumes:
-      - /c/TeardownDevelopment/nakama-server:/nakama/data
+      - ./:/nakama/data
     expose:
       - "7349"
       - "7350"
