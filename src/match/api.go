@@ -41,3 +41,13 @@ func LuaGamemodeOnJoin(L *lua.LState, userId structs.UserID) {
 		panic(err)
 	}
 }
+
+func LuaGamemodeOnLeave(L *lua.LState, userId structs.UserID) {
+	if err := L.CallByParam(lua.P{
+		Fn:      L.GetGlobal("OnLeave"),
+		NRet:    0,
+		Protect: true,
+	}, lua.LString(userId)); err != nil {
+		panic(err)
+	}
+}
