@@ -67,7 +67,9 @@ type Match struct{}
 
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
 	serverConfig := ReadYMLConfig()
-	registerServer(serverConfig)
+	if !serverConfig.Debug {
+		registerServer(serverConfig)
+	}
 
 	L.SetContext(ctx)
 	L.PreloadModule("player", player.ModuleLoader)
