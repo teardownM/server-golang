@@ -1,3 +1,16 @@
+$Host.UI.RawUI.WindowTitle = "Windows Powershell " + $Host.Version;
+
+@"
+  _                     _                     __  __ 
+ | |                   | |                   |  \/  |
+ | |_ ___  __ _ _ __ __| | _____      ___ __ | \  / |
+ | __/ _ \/ _` | '__/ _` |/ _ \ \ /\ / / '_ \| |\/| |
+ | |_  __/ (_| | | | (_| | (_) \ V  V /| | | | |  | |
+  \__\___|\__,_|_|  \__,_|\___/ \_/\_/ |_| |_|_|  |_|
+
+  by Alexandar Gyurov, Daniel W, Malte0621, Casin
+"@
+
 $dockerID = docker ps -aqf "name=^nakama-server_nakama_1$"
 if ($dockerID -eq $null) {
     $dockerID2 = docker ps -aqf "name=^teardownnakamaserver-nakama-1$"
@@ -8,7 +21,7 @@ if ($dockerID -eq $null) {
     exit 1
 }
 
-Write-Output "Docker ID: $dockerID $dockerID2"
+Write-Output "Found Docker ID: $dockerID $dockerID2"
 if (-not(Test-Path -Path "modules/")) {
     New-Item -ItemType Directory -Force -Path "modules/"
 }
