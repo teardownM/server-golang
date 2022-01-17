@@ -13,6 +13,7 @@ func (m *Match) MatchLeave(ctx context.Context, logger runtime.Logger, db *sql.D
 	for _, presence := range presences {
 		logger.Info("match leave username %v user_id %v session_id %v node %v", presence.GetUsername(), presence.GetUserId(), presence.GetSessionId(), presence.GetNodeId())
 		delete(structs.MState.Presences, structs.UserID(presence.GetUserId()))
+		LuaGamemodeOnLeave(L, structs.UserID(presence.GetUserId()))
 	}
 
 	return structs.MState

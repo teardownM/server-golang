@@ -91,7 +91,7 @@ func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB
 	}
 
 	tickRate := 28
-	label := "dev"
+	label := serverConfig.Gamemode
 
 	return structs.MState, tickRate, label
 }
