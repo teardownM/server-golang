@@ -2,6 +2,7 @@ version: '3'
 services:
   cockroachdb:
     image: cockroachdb/cockroach:latest-v20.2
+    container_name: teardownM_DEV_BUILD-cockroachdb
     command: start-single-node --insecure --store=attrs=ssd,path=/var/lib/cockroach/
     restart: "no"
     volumes:
@@ -14,6 +15,7 @@ services:
       - "8080:8080"
   nakama:
     image: heroiclabs/nakama:3.10.0
+    container_name: teardownM_DEV_BUILD-nakama
     entrypoint:
       - "/bin/sh"
       - "-ecx"
@@ -46,6 +48,7 @@ services:
       retries: 5
   prometheus:
     image: prom/prometheus
+    container_name: teardownM_DEV_BUILD-prometheus
     entrypoint: /bin/sh -c
     command: |
       'sh -s <<EOF

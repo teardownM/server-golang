@@ -1,5 +1,5 @@
 .cookie
-.env
-/modules/teardownNK.so
+
+/modules/*
 /src/modules
 /src/vendor
