@@ -5,11 +5,15 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/alexandargyurov/teardownM/match"
+
 	"github.com/heroiclabs/nakama-common/runtime"
 )
 
 func GetMatches(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	matches, err := nk.MatchList(ctx, 10, true, "sandbox", nil, nil, "")
+	serverConfig := match.ReadYMLConfig()
+
+	matches, err := nk.MatchList(ctx, 10, true, serverConfig.Gamemode, nil, nil, "")
 	if err != nil {
 		logger.WithField("err", err).Error("Match list error.")
 		return "", err
