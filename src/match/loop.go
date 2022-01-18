@@ -50,7 +50,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.Z = rz
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.W = rw
 
-				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6]
+				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7]
 
 				// Sending nil for presenses means will send it to all players connected to the match
 				dispatcher.BroadcastMessage(PLAYER_MOVE, []byte(dataToSend), nil, nil, true)
