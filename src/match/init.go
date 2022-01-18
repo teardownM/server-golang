@@ -74,11 +74,11 @@ func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB
 	L.SetContext(ctx)
 	L.PreloadModule("player", player.ModuleLoader)
 
-	structs.MState.Map = serverConfig.Map.Name
+	structs.MState.Map = serverConfig.Name
 	structs.MState.Debug = serverConfig.Debug
 
 	spawnPoints := make([]vector3.Vector3, 3)
-	for index, spawnPoint := range serverConfig.Map.SpawnPoints {
+	for index, spawnPoint := range serverConfig.SpawnPoints {
 		spawnPoints[index] = *vector3.New(spawnPoint[0], spawnPoint[1], spawnPoint[2])
 	}
 

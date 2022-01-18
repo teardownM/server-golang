@@ -17,14 +17,12 @@ type TeardownPlayer struct {
 type Presences map[UserID]*TeardownPlayer
 
 type ServerConfig struct {
-	Title    string `json:"name"`
-	Gamemode string `json:"gamemode"`
-	Version  string `json:"version"`
-	Debug    bool   `yaml:"debug"`
-	Map      struct {
-		Name        string      `yaml:"name"`
-		SpawnPoints [][]float64 `yaml:"spawn_points"`
-	}
+	Title       string      `json:"name"`
+	Gamemode    string      `json:"gamemode"`
+	Version     string      `json:"version"`
+	Debug       bool        `yaml:"debug"`
+	Name        string      `yaml:"name"`
+	SpawnPoints [][]float64 `yaml:"spawn_points"`
 }
 
 type MatchState struct {
