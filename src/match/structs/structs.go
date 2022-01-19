@@ -10,7 +10,9 @@ type Quaternion struct {
 
 type TeardownPlayer struct {
 	Position vector3.Vector3
+	ToolPosition vector3.Vector3
 	Rotation Quaternion // Quaternion
+	ToolRotation Quaternion // Quaternion
 	Health   float32
 }
 

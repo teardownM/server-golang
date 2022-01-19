@@ -43,14 +43,27 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				ry, _ := strconv.ParseFloat(data[4], 64)
 				rz, _ := strconv.ParseFloat(data[5], 64)
 				rw, _ := strconv.ParseFloat(data[6], 64)
+				
+				tx, _ := strconv.ParseFloat(data[7], 64)
+				ty, _ := strconv.ParseFloat(data[8], 64)
+				tz, _ := strconv.ParseFloat(data[9], 64)
+				tr_x, _ := strconv.ParseFloat(data[10], 64)
+				tr_y, _ := strconv.ParseFloat(data[11], 64)
+				tr_z, _ := strconv.ParseFloat(data[12], 64)
+				tr_w, _ := strconv.ParseFloat(data[13], 64)
 
 				structs.MState.Presences[m_clientPresenceUserId].Position.Set(x, y, z)
+				structs.MState.Presences[m_clientPresenceUserId].ToolPosition.Set(tx, ty, tz)
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.X = rx
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.Y = ry
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.Z = rz
 				structs.MState.Presences[m_clientPresenceUserId].Rotation.W = rw
+				structs.MState.Presences[m_clientPresenceUserId].ToolRotation.X = tr_x
+				structs.MState.Presences[m_clientPresenceUserId].ToolRotation.Y = tr_y
+				structs.MState.Presences[m_clientPresenceUserId].ToolRotation.Z = tr_z
+				structs.MState.Presences[m_clientPresenceUserId].ToolRotation.W = tr_w
 
-				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7]
+				dataToSend := message.GetUserId() + "," + data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7] + "," + data[8] + "," + data[9] + "," + data[10] + "," + data[11] + "," + data[12] + "," + data[13]
 
 				// Sending nil for presenses means will send it to all players connected to the match
 				dispatcher.BroadcastMessage(PLAYER_MOVE, []byte(dataToSend), nil, nil, true)
