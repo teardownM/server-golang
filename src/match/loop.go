@@ -13,11 +13,13 @@ import (
 )
 
 const (
-	PLAYER_MOVE        int64 = 1
-	PLAYER_SPAWN       int64 = 2
-	PLAYER_SHOOTS      int64 = 3
-	PLAYER_GRABS       int64 = 5
-	PLAYER_TOOL_CHANGE int64 = 6
+	PLAYER_MOVE         int64 = 1
+	PLAYER_SPAWN        int64 = 2
+	PLAYER_SHOOTS       int64 = 3
+	PLAYER_GRABS        int64 = 5
+	PLAYER_TOOL_CHANGE  int64 = 6
+	PLAYER_VEHICLE      int64 = 7
+	PLAYER_VEHICLE_MOVE int64 = 8
 )
 
 type IncomingData struct {
@@ -76,7 +78,25 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				// This user has changed to this tool ^^
 				dispatcher.BroadcastMessage(PLAYER_TOOL_CHANGE, []byte(dataToSend), nil, nil, true)
 			}
+		case PLAYER_VEHICLE:
+			m_clientPresenceUserId := structs.UserID(message.GetUserId())
 
+			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
+				enteredVehicle := string(message.GetData())
+
+				dataToSend := message.GetUserId() + "," + enteredVehicle
+				// Presense has entered/exited a vehicle
+				dispatcher.BroadcastMessage(PLAYER_VEHICLE, []byte(dataToSend), nil, nil, true)
+			}
+		case PLAYER_VEHICLE_MOVE:
+			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+
+			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
+				vehicleMoveData := string(message.GetData())
+
+				dataToSend := message.GetUserId() + "," + vehicleMoveData
+				dispatcher.BroadcastMessage(PLAYER_VEHICLE_MOVE, []byte(dataToSend), nil, nil, true)
+			}
 		default:
 			fmt.Printf("Invalid OP Code!")
 		}
