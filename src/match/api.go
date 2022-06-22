@@ -37,8 +37,6 @@ func LuaGamemodeInit(L *lua.LState, serverConfig structs.ServerConfig) {
 			log.Fatalf("Error calling OnInitialize: %v", err)
 			panic(err)
 		}
-	} else {
-		fmt.Println("[Lua] [General] OnInitialize function not found")
 	}
 }
 
