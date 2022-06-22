@@ -1,5 +1,7 @@
 name: TeardownM Development Server
 gamemode: sandbox
+tickrate: 32
 debug: true
 map: lee_chemicals
 spawn_points: [[0,0,0]]
+client_mods: []

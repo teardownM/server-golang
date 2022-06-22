@@ -30,21 +30,11 @@ type IncomingData struct {
 	CurrentZ float64 `json:"currentZ"`
 }
 
-var tickFunctionChecked bool = false;
-var tickFunctionExists bool = false;
-
 func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, messages []runtime.MatchData) interface{} {
-	if !tickFunctionChecked {
-		tickFunctionChecked = true;
-		exists := L.GetGlobal("OnTick");
-		if exists != lua.LNil {
-			tickFunctionExists = true;
-		}
-	}
-	
-	if tickFunctionExists {
+	tickFunc := L.GetGlobal("OnTick");
+	if tickFunc.Type() == lua.LTFunction {
 		if err := L.CallByParam(lua.P{
-			Fn:      L.GetGlobal("OnTick"),
+			Fn:      tickFunc,
 			NRet:    0,
 			Protect: true,
 		}, lua.LNumber(tick)); err != nil {

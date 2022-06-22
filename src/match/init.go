@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/deeean/go-vector/vector3"
 	"github.com/heroiclabs/nakama-common/runtime"
@@ -21,10 +22,8 @@ import (
 )
 
 var serverConfig structs.ServerConfig
+var gamemodeConfig structs.GamemodeConfig
 
-/**
-* Reads the config file in ./modules/config.yml
-**/
 func ReadYMLConfig() structs.ServerConfig {
 	content, fileErr := ioutil.ReadFile("./data/config.yml")
 	if fileErr != nil {
@@ -68,9 +67,9 @@ var L = lua.NewState()
 
 type Match struct{}
 
-func WatchFiles() {
+func WatchFiles(ctx context.Context) {
 	gamemode := serverConfig.Gamemode
-	path := "./data/gamemodes/" + gamemode + "/"
+	path := "./gamemodes/" + gamemode + "/"
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
@@ -85,46 +84,41 @@ func WatchFiles() {
 	
 	// Watch all files in the gamemode folder and reload them when they change
 	for {
-		for file, lastModified := range filemap {
-			filepath := path + file
-			fileInfo, err := os.Stat(filepath)
+		// read all files in the gamemode folder, recursively
+		err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				log.Fatal(err)
+				return err
+			} else if info.IsDir() {
+				return nil
+			} else if filepath.Ext(path) != ".lua" {
+				return nil
 			}
 			
-			if fileInfo.ModTime().Unix() > lastModified {
+			// Check if the file has changed
+			if filemap[info.Name()] != info.ModTime().Unix() {
+				filemap[info.Name()] = info.ModTime().Unix()
 				changed = true
-				filemap[file] = fileInfo.ModTime().Unix()
 			}
-		
-			// Check for new or deleted files
-			if !fileInfo.IsDir() {
-				if _, ok := filemap[file]; !ok {
-					changed = true
-					filemap[file] = fileInfo.ModTime().Unix()
-				}
-				
-				if _, ok := filemap[file]; ok {
-					if fileInfo.ModTime().Unix() > filemap[file] {
-						changed = true
-						filemap[file] = fileInfo.ModTime().Unix()
-					}
-				}
-				
-				if _, ok := filemap[file]; ok {
-					if fileInfo.ModTime().Unix() < filemap[file] {
-						changed = true
-						delete(filemap, file)
-					}
-				}
+			
+			// Check for new files
+			if _, ok := filemap[info.Name()]; !ok {
+				filemap[info.Name()] = info.ModTime().Unix()
+				changed = true
 			}
+			
+			return nil
+		}); if err != nil {
+			log.Fatal(err)
 		}
 		
 		if changed {
 			fmt.Printf("Detected change in %s, reloading...\n", gamemode)
 			
-			if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
-				fmt.Printf("Could not reload main.lua for gamemode %s", serverConfig.Gamemode)
+			// Reset the Lua state
+			// SetupLua(ctx)
+			
+			if err := L.DoFile("./gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
+				fmt.Printf("Could not reload main.lua, error: %s\n", err.Error())
 			} else {
 				LuaGamemodeInit(L, serverConfig)	
 			}
@@ -134,42 +128,69 @@ func WatchFiles() {
 	}
 }
 
+func SetupLua(ctx context.Context) {
+	if L != nil {
+		L.Close()
+	}
+	
+	L = lua.NewState()
+	
+	L.SetContext(ctx)
+	L.PreloadModule("player", player.ModuleLoader)
+	L.SetGlobal("LogGeneral", L.NewFunction(LuaLogGeneral))
+}
+
+func GetGamemodeConfig() structs.GamemodeConfig {
+	path := "./gamemodes/" + serverConfig.Gamemode + "/config.yml"
+	content, fileErr := ioutil.ReadFile(path)
+	if fileErr != nil {
+		log.Fatal("Could not read config.yml")
+		panic(fileErr)
+	}
+	
+	config := structs.GamemodeConfig{}
+	err := yaml.Unmarshal(content, &config)
+	if err != nil {
+		log.Fatalf("Unable to read gamemode config: %v", err)
+		panic(err)
+	}
+	
+	return config
+}
+
 func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
 	serverConfig = ReadYMLConfig()
 	if !serverConfig.Debug {
 		registerServer()
 	}
 	
-	go WatchFiles()
-
-	L.SetContext(ctx)
-	L.PreloadModule("player", player.ModuleLoader)
+	gamemodeConfig = GetGamemodeConfig()
+	
+	go WatchFiles(ctx)
 
 	structs.MState.Map = serverConfig.Name
 	structs.MState.Debug = serverConfig.Debug
 
-	spawnPoints := make([]vector3.Vector3, 3)
-	for index, spawnPoint := range serverConfig.SpawnPoints {
-		spawnPoints[index] = *vector3.New(spawnPoint[0], spawnPoint[1], spawnPoint[2])
+	spawnPoints := make([]vector3.Vector3, 0)
+	
+	spawnPoint := gamemodeConfig.SpawnPoints[serverConfig.Map]
+	for _, point := range spawnPoint {
+		spawnPoints = append(spawnPoints, vector3.Vector3{point[0], point[1], point[2]})
 	}
 
 	structs.MState.SpawnPoints = spawnPoints
-
-	if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
-		log.Fatalf("Could not find main.lua for gamemode " + serverConfig.Gamemode + ". Make sure the folder name matches exactly the gamemode name. (no spaces)")
+	
+	SetupLua(ctx)
+	
+	if err := L.DoFile("./gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
+		fmt.Errorf("Could not find main.lua for gamemode '%s'. Make sure the folder name matches exactly the gamemode name. (no spaces)", serverConfig.Gamemode)
 		panic(err)
 	}
 	
-	L.SetGlobal("LogGeneral", L.NewFunction(LuaLogGeneral))
-	
 	LuaGamemodeInit(L, serverConfig)
 
-	if structs.MState.Debug {
-		logger.Info("match init, starting with debug: %v", structs.MState.Debug)
-	}
+	tickrate := serverConfig.Tickrate
+	label := fmt.Sprintf("%s-%s", serverConfig.Name, serverConfig.Gamemode)
 
-	tickRate := 28
-	label := serverConfig.Gamemode
-
-	return structs.MState, tickRate, label
+	return structs.MState, tickrate, label
 }

@@ -1,0 +1,10 @@
+spawn_points:
+  lee_chemicals: [[100, 50, 0], [1000, -432, 572]]
+  marina: [[0, 0, 0]]
+  villa_gordon: [[0, 0, 0]]
+  evertides: [[0, 0, 0]]
+  frustrum: [[0, 0, 0]]
+  isla_estocastica: [[0, 0, 0]]
+  quilez_security: [[0, 0, 0]]
+  cullington: [[0, 0, 0]]
+destruction_enabled: true

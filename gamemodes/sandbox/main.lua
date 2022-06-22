@@ -1,3 +1,5 @@
+local t = require("gamemodes.sandbox.test")
+
 function OnInitialize()
     LogGeneral("Sandbox gamemode loaded!")
 end
