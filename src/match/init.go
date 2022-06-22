@@ -3,6 +3,7 @@ package match
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -19,24 +20,26 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var serverConfig structs.ServerConfig
+
 /**
 * Reads the config file in ./modules/config.yml
 **/
 func ReadYMLConfig() structs.ServerConfig {
-	content, fileErr := ioutil.ReadFile("./data/gamemodes/config.yml")
+	content, fileErr := ioutil.ReadFile("./data/config.yml")
 	if fileErr != nil {
 		log.Fatal("Could not read config.yml")
 		panic(fileErr)
 	}
 
-	serverConfig := structs.ServerConfig{}
-	err := yaml.Unmarshal(content, &serverConfig)
+	config := structs.ServerConfig{}
+	err := yaml.Unmarshal(content, &config)
 	if err != nil {
 		log.Fatalf("Unable to read server config: %v", err)
 		panic(err)
 	}
-
-	return serverConfig
+	
+	return config
 }
 
 /**
@@ -46,7 +49,7 @@ func ReadYMLConfig() structs.ServerConfig {
 * developers to create API keys for them to register their server
 * to the global list.
 **/
-func registerServer(serverConfig structs.ServerConfig) {
+func registerServer() {
 	err := godotenv.Load("./data/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -65,11 +68,78 @@ var L = lua.NewState()
 
 type Match struct{}
 
-func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
-	serverConfig := ReadYMLConfig()
-	if !serverConfig.Debug {
-		registerServer(serverConfig)
+func WatchFiles() {
+	gamemode := serverConfig.Gamemode
+	path := "./data/gamemodes/" + gamemode + "/"
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
 	}
+	
+	filemap := make(map[string]int64)
+	for _, file := range files {
+		filemap[file.Name()] = file.ModTime().Unix()
+	}
+	
+	changed := false
+	
+	// Watch all files in the gamemode folder and reload them when they change
+	for {
+		for file, lastModified := range filemap {
+			filepath := path + file
+			fileInfo, err := os.Stat(filepath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			
+			if fileInfo.ModTime().Unix() > lastModified {
+				changed = true
+				filemap[file] = fileInfo.ModTime().Unix()
+			}
+		
+			// Check for new or deleted files
+			if !fileInfo.IsDir() {
+				if _, ok := filemap[file]; !ok {
+					changed = true
+					filemap[file] = fileInfo.ModTime().Unix()
+				}
+				
+				if _, ok := filemap[file]; ok {
+					if fileInfo.ModTime().Unix() > filemap[file] {
+						changed = true
+						filemap[file] = fileInfo.ModTime().Unix()
+					}
+				}
+				
+				if _, ok := filemap[file]; ok {
+					if fileInfo.ModTime().Unix() < filemap[file] {
+						changed = true
+						delete(filemap, file)
+					}
+				}
+			}
+		}
+		
+		if changed {
+			if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
+				fmt.Printf("Could not reload main.lua for gamemode %s", serverConfig.Gamemode)
+				panic(err)
+			}
+			
+			LuaGamemodeInit(L, serverConfig)
+			
+			changed = false
+		}
+	}
+}
+
+func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
+	serverConfig = ReadYMLConfig()
+	if !serverConfig.Debug {
+		registerServer()
+	}
+	
+	go WatchFiles()
 
 	L.SetContext(ctx)
 	L.PreloadModule("player", player.ModuleLoader)
@@ -84,6 +154,13 @@ func (m *Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB
 
 	structs.MState.SpawnPoints = spawnPoints
 
+	if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
+		log.Fatalf("Could not find main.lua for gamemode " + serverConfig.Gamemode + ". Make sure the folder name matches exactly the gamemode name. (no spaces)")
+		panic(err)
+	}
+	
+	L.SetGlobal("LogGeneral", L.NewFunction(LuaLogGeneral))
+	
 	LuaGamemodeInit(L, serverConfig)
 
 	if structs.MState.Debug {

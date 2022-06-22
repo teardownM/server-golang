@@ -1,0 +1,5 @@
+name: TeardownM Development Server
+gamemode: sandbox
+debug: true
+map: lee_chemicals
+spawn_points: [[0,0,0]]

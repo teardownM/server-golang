@@ -41,7 +41,7 @@ var exports = map[string]lua.LGFunction{
 // Given a user_id (UserID), return the health of that player
 func GetHealth(L *lua.LState) int {
 	userID := L.ToString(1)
-	teardownPlayer := structs.MState.Presences[structs.UserID(userID)]
+	teardownPlayer := structs.MState.Presences[userID]
 
 	if exists(L, teardownPlayer, userID) {
 		L.Push(lua.LNumber(teardownPlayer.Health))
@@ -55,7 +55,7 @@ func SetHealth(L *lua.LState) int {
 	userID := L.ToString(1)
 	newHealth := L.ToInt(2)
 
-	teardownPlayer := structs.MState.Presences[structs.UserID(userID)]
+	teardownPlayer := structs.MState.Presences[userID]
 
 	if exists(L, teardownPlayer, userID) {
 		teardownPlayer.Health = float32(newHealth)
@@ -68,7 +68,7 @@ func SetHealth(L *lua.LState) int {
 // Given a user_id (UserID), return the position table of that player
 func GetPos(L *lua.LState) int {
 	userID := L.ToString(1)
-	teardownPlayer := structs.MState.Presences[structs.UserID(userID)]
+	teardownPlayer := structs.MState.Presences[userID]
 
 	if exists(L, teardownPlayer, userID) {
 		playerPosTable := &lua.LTable{}
@@ -89,7 +89,7 @@ func SetPos(L *lua.LState) int {
 	newY := L.ToString(3)
 	newZ := L.ToString(4)
 
-	teardownPlayer := structs.MState.Presences[structs.UserID(userID)]
+	teardownPlayer := structs.MState.Presences[userID]
 
 	if exists(L, teardownPlayer, userID) {
 		x, _ := strconv.ParseFloat(newX, 64)

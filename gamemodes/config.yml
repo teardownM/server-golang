@@ -1,7 +1,0 @@
-title: Dev server 1
-gamemode: sandbox
-version: 0.0.0
-debug: true
-public_ip: "127.0.0.1"
-map: lee_chemicals
-spawn_points: [[0,0,0]]

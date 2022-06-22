@@ -3,51 +3,69 @@ package match
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/alexandargyurov/teardownM/match/structs"
 
 	lua "github.com/yuin/gopher-lua"
 )
 
-func LuaGamemodeInit(L *lua.LState, serverConfig structs.ServerConfig) {
-	if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/init.lua"); err != nil {
-		log.Fatalf("Could not find init.lua for gamemode " + serverConfig.Gamemode + ". Make sure the folder name matches exactly the gamemode name. (no spaces)")
-		panic(err)
+func LuaLogGeneral(L *lua.LState) int {
+	format := L.ToString(1)
+	nargs := L.GetTop()
+	args := make([]interface{}, nargs-1)
+	for i := 2; i <= nargs; i++ {
+		args[i-2] = L.ToString(i)
 	}
-
-	if err := L.CallByParam(lua.P{
-		Fn:      L.GetGlobal("Init"),
-		NRet:    1,
-		Protect: true,
-	}, lua.LString(serverConfig.Gamemode)); err != nil {
-		panic(err)
-	}
-
-	// Get the returned value from the stack and cast it to a lua.LString
-	if str, ok := L.Get(-1).(lua.LString); ok {
-		fmt.Println(str)
-	}
-
-	// Pop the returned value from the stack
-	L.Pop(1)
+	
+	now := time.Now()
+	
+	fmt.Println("[" + now.Format("2006-01-02 15:04:05") + "] [Lua] [General] " + fmt.Sprintf(format, args...))
+	
+	return 0
 }
 
-func LuaGamemodeOnJoin(L *lua.LState, userId structs.UserID) {
-	if err := L.CallByParam(lua.P{
-		Fn:      L.GetGlobal("OnJoin"),
-		NRet:    0,
-		Protect: true,
-	}, lua.LString(userId)); err != nil {
-		panic(err)
+func LuaGamemodeInit(L *lua.LState, serverConfig structs.ServerConfig) {	
+	initFunction := L.GetGlobal("OnInitialize")
+	
+	if initFunction != lua.LNil {
+		err := L.CallByParam(lua.P{
+			Fn:      initFunction,
+			NRet:    0,
+			Protect: true,
+		}); if err != nil {
+			log.Fatalf("Error calling OnInitialize: %v", err)
+			panic(err)
+		}
+	} else {
+		fmt.Println("[Lua] [General] OnInitialize function not found")
 	}
 }
 
-func LuaGamemodeOnLeave(L *lua.LState, userId structs.UserID) {
-	if err := L.CallByParam(lua.P{
-		Fn:      L.GetGlobal("OnLeave"),
-		NRet:    0,
-		Protect: true,
-	}, lua.LString(userId)); err != nil {
-		panic(err)
+func LuaGamemodeOnJoin(L *lua.LState, userId string) {
+	connectFunc := L.GetGlobal("OnConnected")
+	if connectFunc != lua.LNil {
+		err := L.CallByParam(lua.P{
+			Fn:      connectFunc,
+			NRet:    0,
+			Protect: true,
+		}, lua.LString(userId)); if err != nil {
+			log.Fatalf("Error calling OnConnected: %v", err)
+			panic(err)
+		}
+	}
+}
+
+func LuaGamemodeOnLeave(L *lua.LState, userId string) {
+	disconnectFunc := L.GetGlobal("OnDisconnected")
+	if disconnectFunc != lua.LNil {
+		err := L.CallByParam(lua.P{
+			Fn:      disconnectFunc,
+			NRet:    0,
+			Protect: true,
+		}, lua.LString(userId)); if err != nil {
+			log.Fatalf("Error calling OnDisconnected: %v", err)
+			panic(err)
+		}
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/alexandargyurov/teardownM/match/structs"
 
 	"github.com/heroiclabs/nakama-common/runtime"
+	lua "github.com/yuin/gopher-lua"
 )
 
 const (
@@ -29,11 +30,32 @@ type IncomingData struct {
 	CurrentZ float64 `json:"currentZ"`
 }
 
+var tickFunctionChecked bool = false;
+var tickFunctionExists bool = false;
+
 func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, messages []runtime.MatchData) interface{} {
+	if !tickFunctionChecked {
+		tickFunctionChecked = true;
+		exists := L.GetGlobal("OnTick");
+		if exists != lua.LNil {
+			tickFunctionExists = true;
+		}
+	}
+	
+	if tickFunctionExists {
+		if err := L.CallByParam(lua.P{
+			Fn:      L.GetGlobal("OnTick"),
+			NRet:    0,
+			Protect: true,
+		}, lua.LNumber(tick)); err != nil {
+			logger.Error("Error calling OnTick: %v", err)
+		}
+	}
+	
 	for _, message := range messages {
 		switch message.GetOpCode() {
 		case PLAYER_MOVE:
-			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+			m_clientPresenceUserId := message.GetUserId()
 
 			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				data := strings.Split(string(message.GetData()), ",")
@@ -61,7 +83,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 		case PLAYER_SPAWN:
 			dispatcher.BroadcastMessage(PLAYER_SPAWN, []byte(message.GetUserId()), nil, nil, true)
 		case PLAYER_SHOOTS:
-			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+			m_clientPresenceUserId := message.GetUserId()
 
 			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				tool := string(message.GetData())
@@ -70,7 +92,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				dispatcher.BroadcastMessage(PLAYER_SHOOTS, []byte(dataToSend), nil, nil, true)
 			}
 		case PLAYER_TOOL_CHANGE:
-			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+			m_clientPresenceUserId := message.GetUserId()
 
 			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				tool := string(message.GetData())
@@ -79,7 +101,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				dispatcher.BroadcastMessage(PLAYER_TOOL_CHANGE, []byte(dataToSend), nil, nil, true)
 			}
 		case PLAYER_VEHICLE:
-			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+			m_clientPresenceUserId := message.GetUserId()
 
 			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				enteredVehicle := string(message.GetData())
@@ -89,7 +111,7 @@ func (m *Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB
 				dispatcher.BroadcastMessage(PLAYER_VEHICLE, []byte(dataToSend), nil, nil, true)
 			}
 		case PLAYER_VEHICLE_MOVE:
-			m_clientPresenceUserId := structs.UserID(message.GetUserId())
+			m_clientPresenceUserId := message.GetUserId()
 
 			if _, ok := structs.MState.Presences[m_clientPresenceUserId]; ok {
 				vehicleMoveData := string(message.GetData())
