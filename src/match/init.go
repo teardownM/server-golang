@@ -121,6 +121,8 @@ func WatchFiles() {
 		}
 		
 		if changed {
+			fmt.Printf("Detected change in %s, reloading...\n", gamemode)
+			
 			if err := L.DoFile("./data/gamemodes/" + serverConfig.Gamemode + "/main.lua"); err != nil {
 				fmt.Printf("Could not reload main.lua for gamemode %s", serverConfig.Gamemode)
 				panic(err)
